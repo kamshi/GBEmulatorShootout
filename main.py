@@ -55,6 +55,12 @@ def _new_instance(module_name, class_name):
 
 EMULATOR_SPECS = [
     {
+        'factory': lambda: _new_instance("emulators.kami_gb", "KamiGB"),
+        'keywords': ["kami-gb", "kami_gb"],
+        'name': "kami-gb",
+        'url': "https://github.com/kami-gb/kami-gb",
+    },
+    {
         'factory': lambda: _new_instance("emulators.bdm", "BDM"),
         'keywords': ["Beaten Dying Moon", "bdm", "beaten"],
         'name': "Beaten Dying Moon",
