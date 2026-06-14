@@ -61,6 +61,12 @@ EMULATOR_SPECS = [
         'url': "https://github.com/kami-gb/kami-gb",
     },
     {
+        'factory': lambda: _new_instance("emulators.kami_gb_rest", "KamiGBRest"),
+        'keywords': ["kami-gb-rest", "kami_gb_rest"],
+        'name': "kami-gb-rest",
+        'url': "https://github.com/kami-gb/kami-gb",
+    },
+    {
         'factory': lambda: _new_instance("emulators.bdm", "BDM"),
         'keywords': ["Beaten Dying Moon", "bdm", "beaten"],
         'name': "Beaten Dying Moon",

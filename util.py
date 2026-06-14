@@ -1,4 +1,7 @@
-import pyautogui
+try:
+    import pyautogui
+except ImportError:
+    pyautogui = None
 import requests
 import os
 import zipfile
@@ -97,7 +100,10 @@ def extract(filename, path):
     return True
 
 def findWindow(title_check):
-    import win32gui
+    try:
+        import win32gui
+    except ImportError:
+        return None
     def f(hwnd, results):
         title = win32gui.GetWindowText(hwnd)
         if title_check(title):
@@ -109,7 +115,10 @@ def findWindow(title_check):
     return None
 
 def getScreenshot(title_check):
-    import win32gui
+    try:
+        import win32gui
+    except ImportError:
+        return None
     hwnd = findWindow(title_check)
     if not hwnd:
         print("Window not found....")
@@ -121,9 +130,13 @@ def getScreenshot(title_check):
         return None
     rect = win32gui.GetClientRect(hwnd)
     position = win32gui.ClientToScreen(hwnd, (rect[0], rect[1]))
+    if not pyautogui:
+        return None
     return pyautogui.screenshot(region=(position[0], position[1], rect[2], rect[3]))
 
 def fullscreenScreenshot():
+    if not pyautogui:
+        return None
     return pyautogui.screenshot()
 
 def setAppCompatLayers(executable, *layers):
