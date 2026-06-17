@@ -1,4 +1,5 @@
 __pycache__
+venv/
 downloads
 *.gbsav
 tmp.png
