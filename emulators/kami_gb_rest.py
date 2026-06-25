@@ -89,8 +89,12 @@ class KamiGBRest(Emulator):
         result = None
         screenshot = None
         
-        # Timeout based on test runtime
-        timeout = (test.runtime / self.speed) + self.startup_time + 5.0
+        # Timeout based on test runtime. The fixed margin is generous (10s, not 5s):
+        # under --turbo our throughput on the heaviest ROMs (e.g. blargg cpu_instrs/11,
+        # ~18.6s wall) is below the emulated-time estimate, so a tight margin produced
+        # false-negative timeouts. The poll loop below breaks the instant a pass/fail
+        # screen appears, so a larger ceiling costs nothing for ROMs that finish early.
+        timeout = (test.runtime / self.speed) + self.startup_time + 10.0
         
         while time.monotonic() - start_time < timeout:
             time.sleep(0.1)
