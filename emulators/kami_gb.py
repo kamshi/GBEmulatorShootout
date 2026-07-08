@@ -8,7 +8,9 @@ import sys
 
 class KamiGB(Emulator):
     def __init__(self):
-        super().__init__("kami-gb", "https://github.com/kami-gb/kami-gb", startup_time=1.0)
+        # DMG-only (CLAUDE.md "Out of scope (DMG-only): all CGB/SGB tests"); no extra features.
+        super().__init__("kami-gb", "https://github.com/kami-gb/kami-gb", startup_time=1.0,
+                         features=set(), supported_models={"DMG"})
     
     def setup(self):
         # __file__ is emulators/kami_gb.py; project root is 3 levels up (emulators → GBEmulatorShootout → test → root)
@@ -24,7 +26,10 @@ class KamiGB(Emulator):
             raise FileNotFoundError("kami-gb binary not found; build the project first. Searched:\n" + "\n".join(candidates))
 
     def startProcess(self, rom, *, model, required_features):
-        # kami-gb currently only supports DMG (mostly)
+        # kami-gb only supports DMG: skip CGB/SGB and unsupported-feature ROMs (they crash on load).
+        # Returning None makes the base Emulator.run record no result instead of launching the exe.
+        if not self.canRun(model=model, required_features=required_features):
+            return None
         # We pass --no-throttle to run as fast as possible for the shootout
         # and --mute to avoid audio device conflicts or noise
         cmd = [self.__bin_path, os.path.abspath(rom), "--turbo", "--mute"]

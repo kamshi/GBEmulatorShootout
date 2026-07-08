@@ -9,13 +9,24 @@ from util import *
 TestResult = namedtuple('TestResult', ['result', 'screenshot', 'startuptime', 'runtime'])
 
 class Emulator:
-    def __init__(self, name, url, *, startup_time=1.0, features=None):
+    def __init__(self, name, url, *, startup_time=1.0, features=None, supported_models=None):
         self.name = name
         self.url = url
         self.startup_time = startup_time
         self.title_check = lambda title: title.startswith(self.name)
         self.speed = 1.0
         self.features = features or set()
+        # Which console models this emulator can run. Defaults to all — most emulators are multi-model.
+        # A DMG-only emulator narrows this to {"DMG"} so incompatible ROMs are skipped, not launched.
+        self.supported_models = supported_models or {"DMG", "CGB", "SGB"}
+
+    def canRun(self, *, model, required_features):
+        """True only for ROMs this emulator can actually run (matching model + advertised features)."""
+        if str(model) not in self.supported_models:
+            return False
+        if set(required_features or set()) - self.features:
+            return False
+        return True
 
     def setup(self):
         raise NotImplementedError()

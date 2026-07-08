@@ -10,8 +10,13 @@ import io
 import time
 
 class KamiGBRest(Emulator):
+    # kami-gb is a DMG-only emulator (CLAUDE.md "Out of scope (DMG-only): all CGB/SGB tests") with no
+    # extra hardware features (PCM is a CGB register). Running an incompatible ROM (CGB/SGB or a feature
+    # we lack) crashes the exe on load, which the parallel harness reports as "Process died before API
+    # ready". Declaring supported_models={"DMG"} makes canRun/startProcess skip those tests cleanly.
     def __init__(self, port=8080):
-        super().__init__("kami-gb-rest", "https://github.com/kami-gb/kami-gb", startup_time=0.5)
+        super().__init__("kami-gb-rest", "https://github.com/kami-gb/kami-gb", startup_time=0.5,
+                         features=set(), supported_models={"DMG"})
         self.port = port
         self.base_url = f"http://127.0.0.1:{port}/api/v1"
         self.__bin_path = None
@@ -29,6 +34,11 @@ class KamiGBRest(Emulator):
             raise FileNotFoundError("kami-gb binary not found; build the project first.")
 
     def startProcess(self, rom, *, model, required_features):
+        # Skip ROMs this DMG-only emulator cannot run (CGB/SGB, or unsupported features). Returning
+        # None makes the harness record no result for the test instead of launching an exe that
+        # crashes on load. This is the framework's contract for an incompatible model/feature.
+        if not self.canRun(model=model, required_features=required_features):
+            return None
         # We use --rest-api=PORT and --turbo to run fast.
         # We also use --mute to avoid audio device conflicts.
         # --headless avoids opening windows during parallel testing.
@@ -60,6 +70,12 @@ class KamiGBRest(Emulator):
         return None
 
     def run(self, test):
+        # Skip incompatible ROMs (CGB/SGB or unsupported features) before touching the filesystem or
+        # launching a process — this DMG-only emulator would just crash on load.
+        if not self.canRun(model=test.model, required_features=test.required_features):
+            print(f"Skipping {test} on {self.name}: incompatible model/features ({test.model})")
+            return None
+
         print(f"Running {test} on {self.name} (port {self.port})")
 
         sav_file = os.path.splitext(test.rom)[0] + ".sav"

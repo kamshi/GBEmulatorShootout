@@ -77,7 +77,17 @@ def main():
         if checkFilter(test, args.test) and checkFilter(test.model, args.model)
     ]
 
-    print(f"Running {len(filtered_tests)} tests with {args.workers} workers...")
+    # kami-gb is DMG-only: drop ROMs it cannot run (CGB/SGB or unsupported features) so only
+    # compatible ROMs are launched. Without this the harness spawns an exe that crashes on load
+    # and reports "Process died before API ready". Probe compatibility via the emulator itself.
+    compat_probe = KamiGBRest()
+    incompatible = [t for t in filtered_tests
+                    if not compat_probe.canRun(model=t.model, required_features=t.required_features)]
+    filtered_tests = [t for t in filtered_tests if t not in incompatible]
+    if incompatible:
+        print(f"Skipping {len(incompatible)} incompatible (non-DMG / unsupported-feature) ROM(s).")
+
+    print(f"Running {len(filtered_tests)} compatible tests with {args.workers} workers...")
 
     port_queue = queue.Queue()
     for i in range(args.workers):
