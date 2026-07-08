@@ -2,6 +2,7 @@ __pycache__
 venv/
 downloads
 *.gbsav
+*.sav
 tmp.png
 tmp2.png
 emu

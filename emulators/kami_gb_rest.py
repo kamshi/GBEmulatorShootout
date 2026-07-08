@@ -43,11 +43,12 @@ class KamiGBRest(Emulator):
         # We also use --mute to avoid audio device conflicts.
         # --headless avoids opening windows during parallel testing.
         cmd = [
-            self.__bin_path, 
-            os.path.abspath(rom), 
-            "--turbo", 
-            "--mute", 
+            self.__bin_path,
+            os.path.abspath(rom),
+            "--turbo",
+            "--mute",
             "--headless",
+            "--no-save",  # don't write .sav sidecars next to the test ROMs
             f"--rest-api={self.port}"
         ]
         return subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

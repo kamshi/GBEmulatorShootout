@@ -30,9 +30,9 @@ class KamiGB(Emulator):
         # Returning None makes the base Emulator.run record no result instead of launching the exe.
         if not self.canRun(model=model, required_features=required_features):
             return None
-        # We pass --no-throttle to run as fast as possible for the shootout
-        # and --mute to avoid audio device conflicts or noise
-        cmd = [self.__bin_path, os.path.abspath(rom), "--turbo", "--mute"]
+        # We pass --no-throttle to run as fast as possible for the shootout, --mute to avoid audio
+        # device conflicts or noise, and --no-save so no .sav sidecars are written next to test ROMs.
+        cmd = [self.__bin_path, os.path.abspath(rom), "--turbo", "--mute", "--no-save"]
         if sys.platform == "win32":
             cmd.append("--square-corners")
         
